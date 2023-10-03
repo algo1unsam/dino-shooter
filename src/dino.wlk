@@ -34,7 +34,7 @@ object juego{
 			game.removeVisual(gameOver)
 			self.iniciar()
 		}
-		cactus.regresar()
+		game.onTick(3000,"muv",{=>cactus.regresar()})
 		
 	}
 	
@@ -119,28 +119,44 @@ object suelo{
 	}
 }
 
-
 object dino {
 	var vivo = true
 
 	var position = game.at(1,suelo.position().y())
 	
+	method estaEnElSuelo(){
+		return position.y() == suelo.position().y()
+	}
+	
 	method image() = "dino.png"
 	method position() = position
 	
 	method saltar(){
-		//COMPLETAR
+		
+		self.subir()
+		
+		//gravedad
+		game.schedule(1000, {if(!self.estaEnElSuelo()) {self.bajar()}})
+		
+		//comment
+		
+		
+		
 	}
 	
 	method subir(){
+		position = game.at(1,suelo.position().y())
 		position = position.up(1)
 	}
 	
 	method bajar(){
+		
 		position = position.down(1)
+		
+		
 	}
 	method morir(){
-		game.say(self,"¡Auch!")
+		game.say(self,"Â¡Auch!")
 		vivo = false
 	}
 	method iniciar() {
@@ -149,4 +165,5 @@ object dino {
 	method estaVivo() {
 		return vivo
 	}
+	
 }
