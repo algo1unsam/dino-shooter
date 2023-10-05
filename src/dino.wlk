@@ -15,7 +15,9 @@ object juego{
 	
 		keyboard.space().onPressDo{ self.jugar()}
 		
-		game.onCollideDo(dino,{ obstaculo => obstaculo.chocar()})
+		game.whenCollideDo(dino,{ obstaculo =>
+			obstaculo.chocar(dino)
+		})
 		
 	} 
 	
@@ -32,6 +34,7 @@ object juego{
 			game.removeVisual(gameOver)
 			self.iniciar()
 		}
+		game.onTick(3000,"muv",{=>cactus.regresar()})
 		
 	}
 	
@@ -59,14 +62,14 @@ object reloj {
 	method position() = game.at(1, game.height()-1)
 	
 	method pasarTiempo() {
-		//COMPLETAR
+		tiempo += 1
 	}
 	method iniciar(){
 		tiempo = 0
 		game.onTick(100,"tiempo",{self.pasarTiempo()})
 	}
 	method detener(){
-		//COMPLETAR
+		game.removeTickEvent("tiempo")
 	}
 }
 
@@ -83,48 +86,77 @@ object cactus {
 		position = self.posicionInicial()
 		game.onTick(velocidad,"moverCactus",{self.mover()})
 	}
-	
-	method mover(){
-		//COMPLETAR
+
+	method regresar()
+	{
+		if(self.position().x()<=0)
+		position = self.posicionInicial()
+	}
+	method mover()
+	{
+		position = self.position().left(1)
 	}
 	
-	method chocar(){
-		//COMPLETAR
+	method chocar(_algo)
+	{
+		_algo.morir()
+		//juego.terminar()
 	}
-    method detener(){
-		//COMPLETAR
+    method detener()
+    {
+		game.removeTickEvent("moverCactus")
 	}
 }
-
 object suelo{
 	
 	method position() = game.origin().up(1)
 	
 	method image() = "suelo.png"
+	
+	method morir()
+	{
+		
+	}
 }
-
 
 object dino {
 	var vivo = true
 
 	var position = game.at(1,suelo.position().y())
 	
+	method estaEnElSuelo(){
+		return position.y() == suelo.position().y()
+	}
+	
 	method image() = "dino.png"
 	method position() = position
 	
 	method saltar(){
-		//COMPLETAR
+		
+		self.subir()
+		
+		//gravedad
+		game.schedule(1000, {if(!self.estaEnElSuelo()) {self.bajar()}})
+		
+		//comment
+		
+		
+		
 	}
 	
 	method subir(){
+		position = game.at(1,suelo.position().y())
 		position = position.up(1)
 	}
 	
 	method bajar(){
+		
 		position = position.down(1)
+		
+		
 	}
 	method morir(){
-		game.say(self,"¡Auch!")
+		game.say(self,"Â¡Auch!")
 		vivo = false
 	}
 	method iniciar() {
@@ -133,4 +165,5 @@ object dino {
 	method estaVivo() {
 		return vivo
 	}
+	
 }
